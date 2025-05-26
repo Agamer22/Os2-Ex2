@@ -11,62 +11,41 @@ int find_mo(int*, int);
 
 int main() 
 {
+    // fork
+
+
     struct sockaddr_un my_addr;
     int sock, client_sock;
     int a;
 
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock == -1) {
-        perror("socket");
-        exit(EXIT_FAILURE);
-    }
 
     memset(&my_addr, 0, sizeof(struct sockaddr_un));
     my_addr.sun_family = AF_UNIX;
     strncpy(my_addr.sun_path, MY_SOCK_PATH, sizeof(my_addr.sun_path) - 1);
-
-    unlink(MY_SOCK_PATH);
-
-    if (bind(sock, (struct sockaddr *)&my_addr, sizeof(struct sockaddr_un)) == -1) {
-        perror("bind");
-        close(sock);
-        exit(EXIT_FAILURE);
-    }
-
-    if (listen(sock, 5) == -1) {
-        perror("listen");
-        close(sock);
-        exit(EXIT_FAILURE);
-    }
-
-    client_sock = accept(sock, NULL, NULL);
-    if (client_sock == -1) {
-        perror("accept");
-        close(sock);
-        exit(EXIT_FAILURE);
-    }
 
 
 
     int* buffer = malloc(100*sizeof(int));
     int cnt = 0;
     int i,res;
-
+    
 
     while (1) {
         int client_sock = accept(sock, NULL, NULL);
-        if (client_sock == -1) {
+        if (client_sock == -1) 
+        {
             perror("accept");
-            continue;  // Try accepting the next client
+            continue;  
         }
     
         printf("Client connected.\n");
+     
     
-
-    while (1) {
         ssize_t bytes = read(client_sock, &a, sizeof(int));
     
-        if (bytes == sizeof(int)) {
+        if (bytes == sizeof(int)) 
+        {
             printf("read %d\n", a);
     
             if (a != 0) {
@@ -80,22 +59,26 @@ int main()
                 res = find_mo(buffer, cnt);
                 write(client_sock, &res, sizeof(int));
     
-                if (res > 20) {
+                if (res > 20) 
+                {
                     write(client_sock, "Ok", sizeof("Ok"));
                 }
+                else
+                {
+                    write(client_sock, "Not Ok", sizeof("Not Ok")); 
+                }
     
-                cnt = 0;  // reset for next sequence
+                cnt = 0;  
             }
     
-        } else if (bytes == 0) {
+        } 
+        else if (bytes == 0) 
+        {
             printf("Client disconnected.\n");
             break;
-        } else {
-            perror("read");
-            break;
-        }
+        } 
     }
-}
+
 
     close(client_sock);
     close(sock);
